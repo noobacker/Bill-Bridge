@@ -1,0 +1,84 @@
+                                                                            ==      DONE
+
+1. Report : Search bar, calendar, and category sort filter beside the "Add Expenses"
+2. GST and W/o GST in report section
+3. Username and password reset by user.
+4. Can’t add/edit product details (issue after adding IGST).
+5. User based department access.
+6. Can’t change payment status (Paid/Partial/Credit).4. Can’t change payment status (Paid/Partial/Credit). - Check terminal logs and fix.
+
+2. Dashboard Page - Make the dashboard item list collapsable.
+3. Dashboard Page - Individual producytion in "Today's Production".
+4. Inventory Page - In production page, while adding a production, dont show the services in the dropdown.
+                                                                            ==      TO DO
+
+1. AI to analyse the code and features and scope of improvement.
+2. Since, Invoice date can be modified (keep backdate) while creating a invoice, and creation date is the current time. but this might ffect in global level distribution. so lets add a feature in the settings named "Buisness Region selection", here whichever region is selected that time will be recorded for any activity or creation in the system logs.
+
+5. Inventory Page - In "Raw Materials" and "Production Inventory", do the pagination - default to 10/n with options of 10,20,50.
+6. Transport page count update.
+7. Image in invoice.
+8. Calling feature.
+9. Driver selection in sales page - optional.
+
+
+                                                                            ==      improvement
+
+1. Can we add multi language support ? Our target user / client is Indians. so especially Hindi and Marathi.
+2. Color schema.
+3. Bill PDF Layout.
+4. Remove "Total Quantity" from table in client page. and when viewing the details of client and orders, show teh quantity beside the product in bracket.
+5. Keep only 2 theme modes, light and dark. Dont show sysytem and all -when clicked on the button it should directly toggle to the other mode/theme.
+6. Tab name is "Bharatiya enterprises", keep it bill bridge or company name.
+7. If "Company name is left empty and saved, replace it with "BillBridge" - In short, keep "BillBridge" as default until the user changes the name, once changed, it should change name in everything of the website, pdf, etc.
+8. Add a welcoming dialouge with buisness name (Welcome to the Buisness name Panel).
+9. "skipRawMaterials" iwhile adding the production.
+
+
+                                                                    ==      BUGS - Fixed
+
+1. Everytime any change or data in invoice is edited, it increases the total amount in table by "+ Total Amount".
+2. Transportaion details are not available in PDF even after it is saved and availabel in Sale.
+3. Dont show "Email: Email" in company details, show mail only if it is availabel in the company setting page.
+4. "Transportation details:" vehicle no. isnt available, not printing in PDF.
+5. User Management: password not visible.
+6. Vendor history not visible.
+
+
+========================================================================================================================
+
+Suggestions / Potential Improvements (from AI scan):
+
+1. Dashboard
+   - Add pagination or lazy loading for long tables (sales, expenses, inventory) to keep pages fast on large data.
+   - Show quick KPIs for overdue credit payments and upcoming deliveries.
+
+2. Expenses
+   - Add an "Export to Excel/CSV" for filtered expenses list.
+   - Allow attaching a bill photo/PDF to each expense for record keeping.
+
+3. Sales & Clients
+   - On client details, show lifetime total sales and outstanding amount.
+   - Add a quick filter for "Credit" invoices on the sales page.
+
+4. Inventory / Production
+   - Flag production batches that were added with "Don't record raw material" so they’re easy to audit later.
+   - Add a simple stock valuation card (total bricks * default price) on inventory dashboard.
+
+5. Settings / UX
+   - Add a small preview of invoice PDF layout in Settings when switching between formats.
+   - Add tooltips for tax fields (CGST/SGST/IGST) explaining when to use each.
+
+6. Potential Bugs / Edge Cases
+   - Validate that company name is never saved as empty string (should always fallback to "BillBridge").
+   - Double‑check payment status flows so changing status doesn’t double‑count in reports.
+
+
+
+   Add the pagination in
+1. "Raw Materials" 
+2. "Production Inventory" and 
+3. "Partners's" - Vendors, Clients, Transportation
+ (default set to 10- show options of 30, 50, 100)
+
+Pagination, similar to Sales page.

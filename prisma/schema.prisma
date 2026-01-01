@@ -1,0 +1,267 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SUPERVISOR
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  COMPLETE
+}
+
+enum PaymentType {
+  CASH
+  ONLINE
+}
+
+enum TransactionType {
+  PURCHASE
+  SALE
+  EXPENSE
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String   @unique
+  name      String
+  password  String
+  role      UserRole @default(SUPERVISOR)
+  // List of section keys this user is allowed to see (for SUPERVISOR role)
+  // e.g. ["dashboard", "raw-materials", "production", "inventory", "sales", "expenses", "reports", "partners", "settings"]
+  allowedSections String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RawMaterial {
+  id              String              @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  unit            String
+  currentStock    Float
+  minStockLevel   Float
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  purchases       Expense[]
+  usedInProduction ProductionMaterial[]
+}
+
+model Partner {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  type           String
+  contactName    String?
+  phone          String?
+  email          String?
+  address        String?
+  gstNumber      String?
+  bankName       String?
+  accountNumber  String?
+  ifscCode       String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  purchases      Expense[]
+  invoices       Invoice[]
+  transactions   Transaction[]
+}
+
+model StorageLocation {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  name        String            @unique
+  description String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  productions ProductionBatch[]
+}
+
+model ProductType {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  name        String            @unique
+  hsnNumber   String
+  description String?
+  isService   Boolean           @default(false)
+  cgstRate    Float             @default(9)
+  sgstRate    Float             @default(9)
+  igstRate    Float             @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  productions ProductionBatch[]
+  sales       Sale[]
+}
+
+model ProductionBatch {
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+  productType       ProductType       @relation(fields: [productTypeId], references: [id])
+  productTypeId     String            @db.ObjectId
+  quantity          Int
+  remainingQuantity Int
+  productionDate    DateTime
+  storageLocation   StorageLocation? @relation(fields: [storageLocationId], references: [id])
+  storageLocationId String?          @db.ObjectId
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  sales             Sale[]
+  materials         ProductionMaterial[]
+}
+
+model ProductionMaterial {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  productionBatch   ProductionBatch  @relation(fields: [productionBatchId], references: [id])
+  productionBatchId String           @db.ObjectId
+  rawMaterial       RawMaterial      @relation(fields: [rawMaterialId], references: [id])
+  rawMaterialId     String           @db.ObjectId
+  quantityUsed      Float
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model Invoice {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String        @unique
+  partner       Partner       @relation(fields: [partnerId], references: [id])
+  partnerId     String        @db.ObjectId
+  transportation   Transportation? @relation(fields: [transportationId], references: [id])
+  transportationId String?         @db.ObjectId
+  invoiceDate   DateTime
+  dueDate       DateTime?
+  isGst         Boolean       @default(true)
+  subtotal      Float
+  cgstRate      Float         @default(9)
+  sgstRate      Float         @default(9)
+  igstRate      Float         @default(0)
+  cgstAmount    Float         @default(0)
+  sgstAmount    Float         @default(0)
+  igstAmount    Float         @default(0)
+  totalAmount   Float
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentType   PaymentType   @default(CASH)
+  paidAmount    Float         @default(0)
+  pendingAmount Float
+  remarks       String?
+  transportMode String?
+  driverName    String?
+  driverPhone   String?
+  transportVehicle String?
+  deliveryCity  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  sales         Sale[]
+  transactions  Transaction[]
+}
+
+model Sale {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  invoice           Invoice         @relation(fields: [invoiceId], references: [id])
+  invoiceId         String          @db.ObjectId
+  productType       ProductType     @relation(fields: [productTypeId], references: [id])
+  productTypeId     String          @db.ObjectId
+  productionBatch   ProductionBatch? @relation(fields: [productionBatchId], references: [id])
+  productionBatchId String?          @db.ObjectId
+  quantity          Int
+  rate              Float
+  amount            Float
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model ExpenseCategory {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String    @unique
+  isDefault Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expenses  Expense[]
+}
+
+model Expense {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  category        ExpenseCategory @relation(fields: [categoryId], references: [id])
+  categoryId      String        @db.ObjectId
+  description     String?
+  billNumber      String?
+  amount          Float
+  date            DateTime
+  
+  // Fields from Purchase model
+  partner         Partner?       @relation(fields: [partnerId], references: [id])
+  partnerId       String?        @db.ObjectId
+  rawMaterial     RawMaterial?   @relation(fields: [rawMaterialId], references: [id])
+  rawMaterialId   String?        @db.ObjectId
+  quantity        Float?
+  rate            Float?
+  isCredit        Boolean?       @default(false)
+  creditDays      Int?
+  dueDate         DateTime?
+  paymentStatus   PaymentStatus? @default(PENDING)
+  paidAmount      Float?         @default(0)
+  pendingAmount   Float?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  transactions    Transaction[]
+}
+
+model Transaction {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  type        TransactionType
+  amount      Float
+  date        DateTime
+  description String
+  partnerId   String?         @db.ObjectId
+  partner     Partner?        @relation(fields: [partnerId], references: [id])
+  invoiceId   String?         @db.ObjectId
+  invoice     Invoice?        @relation(fields: [invoiceId], references: [id])
+  expenseId   String?         @db.ObjectId
+  expense     Expense?        @relation(fields: [expenseId], references: [id])
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model SystemSettings {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  companyName       String        @default("Bill Bridge")
+  address           String?
+  phone             String?
+  email             String?
+  gstNumber         String?
+  panNumber         String?
+  bankName          String?
+  accountNumber     String?
+  accountHolderName String?
+  ifscCode          String?
+  upiId              String        @default("")
+  cgstRate          Float         @default(9)
+  sgstRate          Float         @default(9)
+  igstRate          Float         @default(0)
+  defaultBrickPrice Float         @default(7)
+  pdfFormat         String        @default("modern")
+  logoUrl            String        @default("/images/default_logo.png")
+  showLogoInPdf      Boolean       @default(true)
+  language          String        @default("en")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model Transportation {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  ownerName  String?
+  phone      String
+  city       String
+  drivers    Json?    // Array of { name: string, phone: string }
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  invoices   Invoice[]
+}
