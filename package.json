@@ -1,15 +1,15 @@
 {
-  
-    "name": "my-v0-project",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-      "dev": "next dev",
-      "build": "next build",
-      "start": "next start",
-      "lint": "next lint",
-      "seed": "node prisma/seed.js"
-    },
+  "name": "my-v0-project",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node prisma/seed.js",
+    "postinstall": "prisma generate"
+  },
   "dependencies": {
     "@auth/core": "latest",
     "@hookform/resolvers": "^3.9.1",
