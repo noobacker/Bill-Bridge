@@ -2,15 +2,14 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
- "scripts": {
-  "dev": "next dev",
-  "build": "prisma generate && next build",
-  "start": "next start",
-  "lint": "next lint",
-  "seed": "node prisma/seed.js",
-  "postinstall": "prisma generate"
-},
-
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node prisma/seed.js",
+    "postinstall": "prisma generate"
+  },
   "dependencies": {
     "@auth/core": "latest",
     "@hookform/resolvers": "^3.9.1",
@@ -58,7 +57,7 @@
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.454.0",
-    "next": "^15.3.3",
+    "next": "15.3.8",
     "next-auth": "^4.24.11",
     "next-themes": "latest",
     "nodemailer": "latest",
